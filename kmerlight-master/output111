@@ -1,0 +1,13 @@
+#Parms :  k = 111; nfreq = 10; infile(s) = ../SRR_31897248.fastq, ; outfile = output111; copies = 7
+#F0 = 3035
+f	k=111
+f1	3033
+f2	0
+f3	0
+f4	0
+f5	0
+f6	0
+f7	0
+f8	0
+f9	0
+f10	0
