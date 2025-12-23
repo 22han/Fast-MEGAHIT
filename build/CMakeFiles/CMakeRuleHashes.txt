@@ -1,0 +1,4 @@
+# Hashes of file build rules.
+1300dfd16d367ed7e7fb49ff8ac6663d CMakeFiles/megahit
+14c913fada26c067da5d8233dc9fd742 CMakeFiles/megahit_toolkit
+ad79a6f007d0c54850ffba6ffef96c01 CMakeFiles/simple_test

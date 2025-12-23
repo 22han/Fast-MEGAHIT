@@ -1,0 +1,10 @@
+/home/zhangzihan/dabing/simulated_genomes/sars2-ref/ncbi_dataset/data/VS_10.simseq.genome.fa
+/home/zhangzihan/dabing/simulated_genomes/sars2-ref/ncbi_dataset/data/VS_1.simseq.genome.fa
+/home/zhangzihan/dabing/simulated_genomes/sars2-ref/ncbi_dataset/data/VS_2.simseq.genome.fa
+/home/zhangzihan/dabing/simulated_genomes/sars2-ref/ncbi_dataset/data/VS_3.simseq.genome.fa
+/home/zhangzihan/dabing/simulated_genomes/sars2-ref/ncbi_dataset/data/VS_4.simseq.genome.fa
+/home/zhangzihan/dabing/simulated_genomes/sars2-ref/ncbi_dataset/data/VS_5.simseq.genome.fa
+/home/zhangzihan/dabing/simulated_genomes/sars2-ref/ncbi_dataset/data/VS_6.simseq.genome.fa
+/home/zhangzihan/dabing/simulated_genomes/sars2-ref/ncbi_dataset/data/VS_7.simseq.genome.fa
+/home/zhangzihan/dabing/simulated_genomes/sars2-ref/ncbi_dataset/data/VS_8.simseq.genome.fa
+/home/zhangzihan/dabing/simulated_genomes/sars2-ref/ncbi_dataset/data/VS_9.simseq.genome.fa

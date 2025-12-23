@@ -1,0 +1,12 @@
+/home/zhangzihan/build/CMakeFiles/install/strip.dir
+/home/zhangzihan/build/CMakeFiles/install/local.dir
+/home/zhangzihan/build/CMakeFiles/install.dir
+/home/zhangzihan/build/CMakeFiles/list_install_components.dir
+/home/zhangzihan/build/CMakeFiles/rebuild_cache.dir
+/home/zhangzihan/build/CMakeFiles/simple_test.dir
+/home/zhangzihan/build/CMakeFiles/megahit.dir
+/home/zhangzihan/build/CMakeFiles/edit_cache.dir
+/home/zhangzihan/build/CMakeFiles/megahit_core_no_hw_accel.dir
+/home/zhangzihan/build/CMakeFiles/megahit_toolkit.dir
+/home/zhangzihan/build/CMakeFiles/megahit_core_popcnt.dir
+/home/zhangzihan/build/CMakeFiles/megahit_core.dir
