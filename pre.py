@@ -6,9 +6,17 @@ def process_fastq_pair(r1_path, r2_path):
     """处理FASTQ对：过滤含N的reads，并生成3个输出文件"""
     r1_path, r2_path = Path(r1_path), Path(r2_path)
     
-    out1_path = r1_path.with_name('clean_1.fastq')
-    out2_path = r2_path.with_name('clean_2.fastq')
-    out2_rc_path = r2_path.with_name('clean_2_rc.fastq')
+    # 从输入文件名提取样本名（例如 SRR33980743）
+    # 假设输入文件格式为 <SAMPLE>_1.fastq 和 <SAMPLE>_2.fastq
+    sample_name = r1_path.stem  # 得到 "SRR33980743_1"
+    if sample_name.endswith('_1'):
+        sample_name = sample_name[:-2]  # 去掉末尾的 "_1"
+    # 更健壮的方法：用 r2_path 也验证一下，但这里简化处理
+    
+    # 构造输出文件名
+    out1_path = r1_path.with_name(f"{sample_name}clean_1.fastq")
+    out2_path = r2_path.with_name(f"{sample_name}clean_2.fastq")
+    out2_rc_path = r2_path.with_name(f"{sample_name}clean_2_rc.fastq")
 
     # 创建转换表
     trans_table = str.maketrans('ACGTacgt', 'TGCAtgca')

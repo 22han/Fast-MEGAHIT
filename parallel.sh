@@ -1,142 +1,146 @@
 #!/bin/bash
-# run_multi_k_parallel.sh
+# run_multi_k_parallel.sh (已修复输出目录参数化问题)
+
+# 获取当前脚本所在目录
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+KMERLIGHT_DIR="${SCRIPT_DIR}/kmerlight-master"
+
+# --- 修改点 1: 更新使用方法说明和参数检查 ---
+# 现在接受 2 个或 3 个参数
+if [ $# -lt 2 ] || [ $# -gt 3 ]; then
+    echo "Usage: $0 <raw_r1> <raw_r2> [output_dir]"
+    echo "Example: $0 /data/R1.fastq /data/R2.fastq my_assembly_result"
+    exit 1
+fi
+
+RAW_R1="$1"
+RAW_R2="$2"
+# --- 修改点 2: 灵活获取输出目录 ---
+# 如果提供了第3个参数则使用它，否则默认为 megahit_out
+OUTPUT_DIR="${3:-megahit_out}"
 
 # 记录开始时间
 START_TIME=$(date +%s)
 echo "Pipeline started at: $(date)"
 
-# 使用方法: ./run_multi_k_parallel.sh <kmerlight_dir> <scripts_dir> <r1_file> <r2_rc_file>
-if [ $# -ne 4 ]; then
-    echo "Usage: $0 <kmerlight_dir> <scripts_dir> <r1_file> <r2_rc_file>"
-    echo "Example: $0 /home/user/kmerlight-master /home/user/scripts /data/SRR33132322_1.fastq /data/SRR33132322_R2_rc.fastq"
-    exit 1
-fi
-
-KMERLIGHT_DIR="$1"
-SCRIPTS_DIR="$2"
-R1_FILE="$3"
-R2_RC_FILE="$4"    # 用于kmerlight的反向互补文件
-
-# 检查文件是否存在
+# 检查必需文件
 if [ ! -f "$KMERLIGHT_DIR/kmerlight" ]; then
     echo "Error: kmerlight not found at $KMERLIGHT_DIR/kmerlight"
     exit 1
 fi
 
-if [ ! -f "$SCRIPTS_DIR/analyze_single_k.py" ]; then
-    echo "Error: analyze_single_k.py not found at $SCRIPTS_DIR/analyze_single_k.py"
-    exit 1
-fi
+for script in analyze_single_k.py select_best_for_interval.py pre.py; do
+    if [ ! -f "$SCRIPT_DIR/$script" ]; then
+        echo "Error: $script not found in $SCRIPT_DIR"
+        exit 1
+    fi
+done
 
-if [ ! -f "$SCRIPTS_DIR/select_best_for_interval.py" ]; then
-    echo "Error: select_best_for_interval.py not found at $SCRIPTS_DIR/select_best_for_interval.py"
-    exit 1
-fi
+# -------------------- 预处理步骤 --------------------
+echo "Step 1: Preprocessing..."
+python3 "$SCRIPT_DIR/pre.py" "$RAW_R1" "$RAW_R2"
+if [ $? -ne 0 ]; then echo "Preprocessing failed"; exit 1; fi
 
-if [ ! -f "$R1_FILE" ]; then
-    echo "Error: R1 file not found: $R1_FILE"
-    exit 1
-fi
+base=$(basename "$RAW_R1" | sed 's/_1\.fastq$//')
+DATA_DIR=$(dirname "$RAW_R1")
+R1_FILE="${DATA_DIR}/${base}clean_1.fastq"
+R2_CLEAN="${DATA_DIR}/${base}clean_2.fastq"
+R2_RC_FILE="${DATA_DIR}/${base}clean_2_rc.fastq"
 
-if [ ! -f "$R2_RC_FILE" ]; then
-    echo "Error: R2 RC file not found: $R2_RC_FILE"
-    exit 1
-fi
-
-echo "KmerLight directory: $KMERLIGHT_DIR"
-echo "Scripts directory: $SCRIPTS_DIR"
-echo "Input files: $R1_FILE, $R2_RC_FILE"
-
-# 创建输出目录
+# -------------------- k-mer 分析部分 --------------------
+# -------------------- k-mer 分析部分 --------------------
+# -------------------- k-mer 分析部分 --------------------
 mkdir -p spectra analysis_results interval_results
 
-# 定义8个区间
+# 获取当前脚本的绝对路径（锁死 py 文件位置）
+ABS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+K_EXE="${ABS_DIR}/kmerlight-master/kmerlight"
+
 intervals=("21-36" "37-52" "53-68" "69-84" "85-100" "101-116" "117-132" "133-148")
 
-echo "Starting parallel k-mer spectrum computation and analysis by intervals..."
+# 定义一个彻底独立的函数
+do_single_k_analysis() {
+    local k=$1
+    local s=$2
+    local e=$3
+    local script_path=$4
+    local kmerlight_exe=$5
+    local r1=$6
+    local r2rc=$7
 
-# 为每个区间创建并行任务
+    local out_dir="analysis_results/interval_${s}_${e}"
+    
+    # 1. 运行 kmerlight
+    "$kmerlight_exe" -k "$k" -f 10 -i "$r1" "$r2rc" -o "spectra/k${k}.txt"
+    
+    # 2. 运行你的 analyze_single_k.py (使用绝对路径调用)
+    python3 "${script_path}/analyze_single_k.py" \
+        --spectrum-file "spectra/k${k}.txt" \
+        --k-value "$k" \
+        --output "${out_dir}/k${k}_result.txt"
+}
+
+export -f do_single_k_analysis
+
 for interval in "${intervals[@]}"; do
+    start=${interval%-*}
+    end=${interval#*-}
+    
+    # 关键：在启动后台进程前，先在主进程创建好文件夹，防止 Python 写入失败
+    mkdir -p "analysis_results/interval_${start}_${end}"
+
     (
-        start=${interval%-*}
-        end=${interval#*-}
+        echo "Processing interval [$start, $end]..."
         
-        echo "Processing interval [$start, $end] in parallel..."
+        # 将路径作为参数传给 parallel，这样子进程绝对不会弄丢路径
+        parallel -j 2 do_single_k_analysis {} "$start" "$end" \
+            "$ABS_DIR" "$K_EXE" "$R1_FILE" "$R2_RC_FILE" \
+            ::: $(seq "$start" 2 "$end")
         
-        mkdir -p analysis_results/interval_${start}_${end}
-        
-        # 使用函数方式避免特殊字符问题
-        process_k() {
-            k=$1
-            echo "Processing k=$k in interval [$start, $end]..."
-            
-            # 使用绝对路径调用kmerlight
-            "$KMERLIGHT_DIR/kmerlight" -k "$k" -f 10 -i "$R1_FILE" "$R2_RC_FILE" -o "spectra/k${k}.txt"
-            
-            /home/zhangzihan/miniconda3/bin/python3 "$SCRIPTS_DIR/analyze_single_k.py" --spectrum-file "spectra/k${k}.txt" --k-value "$k" --output "analysis_results/interval_${start}_${end}/k${k}_result.txt"
-        }
-        
-        # 导出函数以便parallel使用
-        export -f process_k
-        export KMERLIGHT_DIR R1_FILE R2_RC_FILE SCRIPTS_DIR start end
-        
-        # 使用函数调用parallel
-        parallel -j 2 process_k ::: $(seq $start 2 $end)
-        
-        echo "Selecting best k for interval [$start, $end]..."
-        
-        /home/zhangzihan/miniconda3/bin/python3 "$SCRIPTS_DIR/select_best_for_interval.py" \
+        # 运行选择最佳 k 的 py 文件
+        python3 "${ABS_DIR}/select_best_for_interval.py" \
             --results-dir "analysis_results/interval_${start}_${end}" \
-            --interval "$start-$end" \
+            --interval "$interval" \
             --output "interval_results/interval_${start}_${end}_best.txt"
-        
-        if [ -f "interval_results/interval_${start}_${end}_best.txt" ]; then
-            best_k=$(cat "interval_results/interval_${start}_${end}_best.txt")
-            echo "Interval [$start, $end] completed. Best k = $best_k"
-        else
-            echo "Interval [$start, $end] completed. No best k found."
-        fi
-        
     ) &
 done
 
 wait
 
-echo "All intervals completed. Combining results..."
+# 合并 k-list
+k_list=$(cat interval_results/interval_*_best.txt 2>/dev/null | tr '\n' ',' | sed 's/,$//')
 
-# 检查是否有结果文件
-if ls interval_results/interval_*_best.txt >/dev/null 2>&1; then
-    cat interval_results/interval_*_best.txt > selected_k.txt
-    k_list=$(cat selected_k.txt | tr '\n' ',')
-    echo "================================================"
-    echo "OPTIMAL K-VALUES SELECTED: ${k_list%,}"
-    echo "Results saved to: selected_k.txt"
-    echo "================================================"
-    
-    # 显示选择的k值详情
-    echo "Detailed results per interval:"
-    for interval in "${intervals[@]}"; do
-        start=${interval%-*}
-        end=${interval#*-}
-        if [ -f "interval_results/interval_${start}_${end}_best.txt" ]; then
-            best_k=$(cat "interval_results/interval_${start}_${end}_best.txt")
-            echo "  [$start-$end]: k = $best_k"
-        fi
-    done
-else
-    echo "Error: No interval results found!"
-    exit 1
+# -------------------- MEGAHIT 组装步骤 --------------------
+echo "Step 2: Running MEGAHIT assembly..."
+
+if [ -z "$k_list" ]; then
+    echo "Error: No k-values selected"; exit 1
 fi
 
-# 计算总执行时间
+BUILD_DIR="./build"
+mkdir -p "$BUILD_DIR"
+
+
+ABS_OUTPUT_DIR=$(realpath -m "$OUTPUT_DIR")
+
+cd "$BUILD_DIR" || exit 1
+
+if [ ! -x "./megahit" ]; then
+    echo "Error: ./megahit not found in $(pwd)"; exit 1
+fi
+
+# 检查目标目录是否存在（MEGAHIT不允许输出目录已存在）
+if [ -d "$ABS_OUTPUT_DIR" ]; then
+    echo "Warning: $ABS_OUTPUT_DIR already exists. Deleting it for MEGAHIT..."
+    rm -rf "$ABS_OUTPUT_DIR"
+fi
+
+echo "Running: ./megahit -1 $R1_FILE -2 $R2_CLEAN --k-list $k_list -o $ABS_OUTPUT_DIR" 
+./megahit -1 "$R1_FILE" -2 "$R2_CLEAN" --k-list "$k_list" -o "$ABS_OUTPUT_DIR" 
+
+cd - > /dev/null
+
+# 计算时间并结束
 END_TIME=$(date +%s)
 TOTAL_DURATION=$((END_TIME - START_TIME))
-
-# 格式化输出总时间
-echo "================================================"
-echo "Pipeline completed at: $(date)"
-echo "Total k-value selection time: $(($TOTAL_DURATION / 3600)) hours, $((($TOTAL_DURATION % 3600) / 60)) minutes and $(($TOTAL_DURATION % 60)) seconds"
-echo "================================================"
-echo "Next step: Use the selected k-values with MEGAHIT:"
-echo "  megahit -1 $R1_FILE -2 <your_original_R2_file> --k-list \"${k_list%,}\" -o megahit_output"
-echo "================================================" 
+echo "Pipeline completed. Results in: $OUTPUT_DIR"
