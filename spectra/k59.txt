@@ -1,0 +1,13 @@
+#Parms :  k = 59; nfreq = 10; infile(s) = /data2/zhangzihan1/SRR30814575clean_1.fastq, /data2/zhangzihan1/SRR30814575clean_2_rc.fastq, ; outfile = spectra/k59.txt; copies = 7
+#F0 = 10774
+f	k=59
+f1	9419
+f2	1183
+f3	148
+f4	41
+f5	0
+f6	0
+f7	0
+f8	0
+f9	0
+f10	0
