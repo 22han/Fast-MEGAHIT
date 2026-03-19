@@ -8,9 +8,8 @@ Fast metagenomic assembler with kmerlight integration for efficient k-mer counti
 ```bash
 git clone https://github.com/22han/Fast-MEGAHIT.git
 cd Fast-MEGAHIT
-make
 ```
-###2. Run the Pipeline with One Command
+### 2. Run the Pipeline with One Command
 ```bash
 ./parallel.sh /path/to/reads_1.fastq /path/to/reads_2.fastq /path/to/output_dir
 ```
