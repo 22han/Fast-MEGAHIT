@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>拟合诊断总结</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f5f5f5; }
+        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #34495e; margin-top: 30px; }
+        .diagnosis-box { background: white; padding: 20px; border-radius: 10px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .checklist { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px 20px; margin: 20px 0; }
+        .good { color: #27ae60; }
+        .warning { color: #e74c3c; }
+        img { max-width: 100%; border: 1px solid #ddd; border-radius: 5px; margin: 10px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #3498db; color: white; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+    </style>
+</head>
+<body>
+    <h1>📊 拟合诊断总结</h1>
+    
+    <div class="checklist">
+        <h3>🔍 判断是否需要第三个峰的检查清单：</h3>
+        <p><strong>观察残差图：</strong></p>
+        <ul>
+            <li>✓ 如果残差在某个频率区域有<strong>系统性的正偏差</strong>（连续几个点残差>0），说明该区域拟合不足，可能需要第三个峰</li>
+            <li>✓ 如果残差在某个频率区域有<strong>系统性的负偏差</strong>（连续几个点残差<0），说明该区域过拟合</li>
+        </ul>
+        <p><strong>观察拟合曲线：</strong></p>
+        <ul>
+            <li>✓ 如果在现有两个峰之间或之外有<strong>明显的第三个峰</strong>没有被拟合到，需要添加第三个峰</li>
+            <li>✓ 如果频谱有<strong>多峰结构</strong>，而当前模型只用两个正态分布，可能需要更多成分</li>
+        </ul>
+    </div>
+    
+    <div class="diagnosis-box">
+        <h2>诊断图列表</h2>
+        <table>
+            <tr>
+                <th>k 值</th>
+                <th>诊断图</th>
+                <th>备注</th>
+            </tr>
+
+            <tr>
+                <td><strong>21</strong></td>
+                <td>
+                    <a href="k21_拟合诊断.png">普通尺度</a> | 
+                    <a href="k21_拟合诊断_log.png">对数尺度</a>
+                </td>
+                <td>点击查看大图</td>
+            </tr>
+
+            <tr>
+                <td><strong>31</strong></td>
+                <td>
+                    <a href="k31_拟合诊断.png">普通尺度</a> | 
+                    <a href="k31_拟合诊断_log.png">对数尺度</a>
+                </td>
+                <td>点击查看大图</td>
+            </tr>
+
+            <tr>
+                <td><strong>41</strong></td>
+                <td>
+                    <a href="k41_拟合诊断.png">普通尺度</a> | 
+                    <a href="k41_拟合诊断_log.png">对数尺度</a>
+                </td>
+                <td>点击查看大图</td>
+            </tr>
+
+            <tr>
+                <td><strong>51</strong></td>
+                <td>
+                    <a href="k51_拟合诊断.png">普通尺度</a> | 
+                    <a href="k51_拟合诊断_log.png">对数尺度</a>
+                </td>
+                <td>点击查看大图</td>
+            </tr>
+
+            <tr>
+                <td><strong>61</strong></td>
+                <td>
+                    <a href="k61_拟合诊断.png">普通尺度</a> | 
+                    <a href="k61_拟合诊断_log.png">对数尺度</a>
+                </td>
+                <td>点击查看大图</td>
+            </tr>
+
+            <tr>
+                <td><strong>71</strong></td>
+                <td>
+                    <a href="k71_拟合诊断.png">普通尺度</a> | 
+                    <a href="k71_拟合诊断_log.png">对数尺度</a>
+                </td>
+                <td>点击查看大图</td>
+            </tr>
+
+            <tr>
+                <td><strong>81</strong></td>
+                <td>
+                    <a href="k81_拟合诊断.png">普通尺度</a> | 
+                    <a href="k81_拟合诊断_log.png">对数尺度</a>
+                </td>
+                <td>点击查看大图</td>
+            </tr>
+
+        </table>
+    </div>
+    
+    <div class="diagnosis-box">
+        <h2>💡 决策建议</h2>
+        <p><strong>如果多个 k 值都需要第三个峰：</strong></p>
+        <ul>
+            <li>考虑在 <code>analyze_single_k.py</code> 中修改 <code>n_signal_components</code> 参数</li>
+            <li>或者实现更灵活的成分数选择（如基于 BIC/AIC 准则）</li>
+        </ul>
+        <p><strong>如果只有少数 k 值需要第三个峰：</strong>
+        <ul>
+            <li>可以考虑对这些特殊 k 值单独处理</li>
+            <li>或者保持双峰模型，接受拟合精度的权衡</li>
+        </ul>
+    </div>
+    
+</body>
+</html>

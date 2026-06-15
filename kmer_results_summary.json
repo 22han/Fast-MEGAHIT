@@ -1,0 +1,165 @@
+{
+  "metadata": {
+    "k_range": [
+      21,
+      141
+    ],
+    "step": 2,
+    "generated_at": "2026-04-13T14:24:01.585149",
+    "read_length": null
+  },
+  "partitioning": {
+    "n_partitions": 8,
+    "config": {
+      "method": "change_point",
+      "distance": 8,
+      "prominence": 0.08,
+      "min_size": 5,
+      "max_partitions": 12,
+      "target_min_partitions": 8,
+      "strategy": "hierarchical_change_point_detection"
+    },
+    "partitions_k": [
+      [
+        21,
+        23,
+        21
+      ],
+      [
+        25,
+        45,
+        35
+      ],
+      [
+        47,
+        57,
+        51
+      ],
+      [
+        59,
+        69,
+        63
+      ],
+      [
+        71,
+        81,
+        75
+      ],
+      [
+        83,
+        93,
+        87
+      ],
+      [
+        95,
+        117,
+        105
+      ],
+      [
+        119,
+        141,
+        129
+      ]
+    ]
+  },
+  "selection": {
+    "config": {
+      "method": "balanced",
+      "use_critic": true,
+      "manual_weights": null,
+      "objectives": [
+        "info",
+        "snr",
+        "unif",
+        "conf"
+      ]
+    },
+    "critic_weights_history": [
+      {
+        "partition": 1,
+        "weights": {
+          "info": 0.15565696348489647,
+          "snr": 0.1585164512209893,
+          "unif": 0.12217694076392073,
+          "conf": 0.5636496445301935
+        },
+        "method": "CRITIC"
+      },
+      {
+        "partition": 2,
+        "weights": {
+          "info": 0.24447367281690843,
+          "snr": 0.2555847832671962,
+          "unif": 0.2607719533859323,
+          "conf": 0.23916959052996317
+        },
+        "method": "CRITIC"
+      },
+      {
+        "partition": 3,
+        "weights": {
+          "info": 0.2464617640121492,
+          "snr": 0.25260751895957145,
+          "unif": 0.27459179241951615,
+          "conf": 0.22633892460876315
+        },
+        "method": "CRITIC"
+      },
+      {
+        "partition": 4,
+        "weights": {
+          "info": 0.24315872053220153,
+          "snr": 0.24656708281817152,
+          "unif": 0.3244660053473702,
+          "conf": 0.18580819130225676
+        },
+        "method": "CRITIC"
+      },
+      {
+        "partition": 5,
+        "weights": {
+          "info": 0.24002767218283488,
+          "snr": 0.24213732825861004,
+          "unif": 0.34848719147286783,
+          "conf": 0.16934780808568722
+        },
+        "method": "CRITIC"
+      },
+      {
+        "partition": 6,
+        "weights": {
+          "info": 0.24798941714645947,
+          "snr": 0.24791666728238992,
+          "unif": 0.2788130131469302,
+          "conf": 0.2252809024242204
+        },
+        "method": "CRITIC"
+      },
+      {
+        "partition": 7,
+        "weights": {
+          "info": 0.13985364797983427,
+          "snr": 0.13974496882531434,
+          "unif": 0.30976023709687656,
+          "conf": 0.410641146097975
+        },
+        "method": "CRITIC"
+      }
+    ],
+    "selected_ks": [
+      21,
+      41,
+      47,
+      59,
+      71,
+      83,
+      95,
+      117,
+      139
+    ]
+  },
+  "convergence": {
+    "total_k_evaluated": 61,
+    "converged_count": 61
+  }
+}

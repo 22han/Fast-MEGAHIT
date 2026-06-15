@@ -1,0 +1,5 @@
+k_value	124
+effective_diff	7
+error_cutoff	2
+error_sum	25762
+distinct_kmers	25769

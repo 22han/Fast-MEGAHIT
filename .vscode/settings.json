@@ -1,0 +1,5 @@
+{
+    "cmake.sourceDirectory": "/home/zhangzihan/FAST_MEGAHIT_1/build",
+    "python-envs.defaultEnvManager": "ms-python.python:conda",
+    "python-envs.defaultPackageManager": "ms-python.python:conda"
+}

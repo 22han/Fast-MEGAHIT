@@ -597,39 +597,18 @@ class SparseKmerSpectrumAnalyzer:
     # ------------------------------------------------------------------
     def compute_effective_diff_soft(self):
         """
-        PESC: continuous soft boundary that eliminates step artifacts.
-
-        Instead of binary {error, genuine} at cutoff, computes the expected
-        count of genuine k-mers by integrating posterior probabilities:
-
-            soft_eff = Σ count[f] × P(genuine | freq=f)
-
-        This is a continuous function of mixture parameters, preserving
-        subtle distributional shifts across k-values for partitioning.
+        [ABLATION: w/o PESC] 
+        Fallback to hard counting to demonstrate the necessity of soft boundary.
+        Instead of continuous soft boundary, uses binary hard cutoff.
         """
-        if self.params is None:
-            self.fit()
-
-        max_x = max(
-            int(2 * self.params['mu']), # 真实峰均值的2倍
-            self.max_freq,  # 原始频谱中的最大频率
-            max(self.frequencies.keys()) if self.frequencies else 0 
-        )
-        x_vals, post_err = self.compute_posterior(max_x=max_x)
-        post_sig = 1.0 - post_err
-
-        soft_effective = 0.0
-        for freq, count in self.frequencies.items():
-            idx = freq - 1  # x_vals starts from 1
-            if 0 <= idx < len(post_sig):
-                soft_effective += count * post_sig[idx]
-            else:
-                # Very high frequency → posterior ≈ 1 for genuine signal
-                soft_effective += count
-
-        self.soft_effective_diff = soft_effective
-        return soft_effective #真实 k‑mer 的期望数量
-
+        # 直接复用已经计算好的硬阈值结果 (effective_diff)
+        # 因为在 get_metrics() 中，compute_effective_diff() 会先于本函数被调用
+        if self.effective_diff is None:
+            self.compute_effective_diff()
+        
+        # 将软计数变量强制赋值为硬计数结果，从而在下游彻底关闭 PESC
+        self.soft_effective_diff = float(self.effective_diff)
+        return self.soft_effective_diff
     # ------------------------------------------------------------------
     # [FIX] Innovation 3: Boundary uncertainty (Shannon entropy)
     # ------------------------------------------------------------------
