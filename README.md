@@ -23,7 +23,3 @@ chmod +x full_pipeline.sh
 - Dependencies: `numpy`, `scipy`, `pandas`, `matplotlib`, `tqdm` (installed via `requirements.txt`)
 - Memory: ~4 GB for standard virome datasets.
 - CPU: Multi-core recommended.
-
-```bash
-./parallel.sh ERR14952688_1.fastq ERR14952688_2.fastq ./test_output
-```
