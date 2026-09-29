@@ -1,7 +1,7 @@
 #!/bin/bash
 # ============================================================
 # 文件名: full_pipeline.sh
-# 功能: 自动化处理双端测序数据（预处理 → KMC → pipeline → MEGAHIT）
+# 功能: 自动化处理双端测序数据（预处理 → KMC → pipeline_custom → MEGAHIT自定义组装）
 # 用法: bash full_pipeline.sh [工作目录]
 # ============================================================
 
@@ -15,13 +15,19 @@ START_K=21
 END_K=141
 STEP=2
 
-MEGAHIT="/home/zhangzihan/build/megahit"
+# ---- pipeline 自定义参数（你可以在这里改）----
+MIN_PARTITIONS=6
+MAX_PARTITIONS=12
+MIN_SIZE=4
+SENSITIVITY=0.5
+
+
 
 ENV_KMC="kmc_env"
 ENV_VS2="vs2"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
+MEGAHIT="$SCRIPT_DIR/build/megahit"
 # -------------------- Conda 初始化 --------------------
 if [[ -f "$HOME/miniconda3/etc/profile.d/conda.sh" ]]; then
     source "$HOME/miniconda3/etc/profile.d/conda.sh"
@@ -42,10 +48,8 @@ echo "工作目录：$WORK_DIR"
 # -------------------- 步骤1：预处理（不需要 conda 环境）--------------------
 step1_preprocess() {
     echo "========== 步骤1：预处理 =========="
-    # 查找所有 _1.fastq 且不包含 'clean' 的文件
     for r1_raw in *_1.fastq; do
         [[ -f "$r1_raw" ]] || continue
-        # 跳过包含 clean 的文件
         if [[ "$r1_raw" == *clean* ]]; then
             continue
         fi
@@ -117,37 +121,53 @@ step2_kmc() {
     echo "KMC 处理完成。"
 }
 
-# -------------------- 步骤3：run_pipeline.py（需要 vs2）--------------------
+# -------------------- 步骤3：run_pipeline_custom.py（需要 vs2）--------------------
 step3_pipeline() {
-    echo "========== 步骤3：选取最佳 k 值组合 =========="
+    echo "========== 步骤3：选取最佳 k 值组合（自定义 pipeline）=========="
     conda activate "$ENV_VS2"
+
+    if [[ ! -f "${SCRIPT_DIR}/run_pipeline_custom.py" ]]; then
+        echo "错误：run_pipeline_custom.py 未找到，请放在 $SCRIPT_DIR"
+        exit 1
+    fi
+
+    # 遍历所有 _kmer 目录
     for kmer_dir in *_kmer; do
         [[ -d "$kmer_dir" ]] || continue
         sample="${kmer_dir%_kmer}"
-        out_k_dir="${sample}_k_nopesc"
+        out_k_dir="${sample}_k_custom"
+
         if [[ -d "$out_k_dir" ]]; then
             echo "跳过 $sample（$out_k_dir 已存在）"
             continue
         fi
+
         echo "运行 run_pipeline_custom.py 于 $sample ..."
-        python "${SCRIPT_DIR}/run_pipeline_custom.py" -i "$kmer_dir" -o "$out_k_dir" \
-            --min_partitions 6 \
-            --max_partitions 12 \
-            --min_size 4 \
-            --sensitivity 0.5 || exit 1
+        echo "  参数: --min_partitions $MIN_PARTITIONS --max_partitions $MAX_PARTITIONS --min_size $MIN_SIZE --sensitivity $SENSITIVITY"
+
+        python3 "${SCRIPT_DIR}/run_pipeline_custom.py" \
+            -i "$kmer_dir" \
+            -o "$out_k_dir" \
+            --min_partitions "$MIN_PARTITIONS" \
+            --max_partitions "$MAX_PARTITIONS" \
+            --min_size "$MIN_SIZE" \
+            --sensitivity "$SENSITIVITY" || exit 1
+
+        echo "$sample pipeline 完成 -> $out_k_dir"
     done
+
     conda deactivate
-    echo "pipeline 完成。"
+    echo "自定义 pipeline 完成。"
 }
 
-
-# -------------------- 步骤4：MEGAHIT 组装 --------------------
+# -------------------- 步骤4：MEGAHIT 组装 (仅保留自定义 k-list 模式) --------------------
 step4_megahit() {
-    echo "========== 步骤4：MEGAHIT 双模式组装 =========="
+    echo "========== 步骤4：MEGAHIT 自定义 k-list 组装 =========="
     if [[ ! -x "$MEGAHIT" ]]; then
         echo "错误：MEGAHIT 不可执行：$MEGAHIT"
         exit 1
     fi
+    
     for r1_raw in *_1.fastq; do
         [[ -f "$r1_raw" ]] || continue
         if [[ "$r1_raw" == *clean* ]]; then
@@ -160,21 +180,12 @@ step4_megahit() {
             continue
         fi
 
-        # 普通模式（原始数据） -> _ou
-        out_ou="${sample}_ou"
-        if [[ ! -d "$out_ou" ]]; then
-            echo "普通 megahit: $sample"
-            "$MEGAHIT" -1 "$r1_raw" -2 "$r2_raw" -o "$out_ou" -t "$THREADS"  || \
-                echo "警告：普通 megahit 失败"
-        else
-            echo "跳过普通组装 $out_ou（已存在）"
-        fi
-
-        # 自定义 k‑list 模式 -> _o
-        out_o="${sample}_oli"
+        # 自定义 k‑list 模式（使用 _k_custom 的结果） -> _oli_custom
+        out_o="${sample}_oli_custom"
         clean1="${sample}clean_1.fastq"
-        clean2="${sample}clean_2.fastq"
-        klist_file="${sample}_k/kmer_results_selected_ks.txt"
+        clean2="${sample}clean_2_rc.fastq"  # <--- 已修正：加上 _rc，与 Step 2 保持一致
+        klist_file="${sample}_k_custom/kmer_results_custom_selected_ks.txt"
+        
         if [[ -d "$out_o" ]]; then
             echo "跳过自定义组装 $out_o（已存在）"
         elif [[ ! -f "$clean1" || ! -f "$clean2" ]]; then
@@ -182,14 +193,13 @@ step4_megahit() {
         elif [[ ! -f "$klist_file" ]]; then
             echo "跳过自定义组装 $sample：缺少 $klist_file"
         else
-            # 从文件中提取 K_LIST 的值
             klist=$(grep '^K_LIST=\[' "$klist_file" | sed 's/K_LIST=\[\(.*\)\]/\1/' | tr -d ' ')
             if [[ -z "$klist" ]]; then
                 echo "警告：$klist_file 中未找到 K_LIST，跳过自定义组装"
             else
                 echo "自定义 k‑list megahit: $sample (klist = $klist)"
-                "$MEGAHIT" -1 "$clean1" -2 "$clean2" -o "$out_o" -t "$THREADS" --k-list "$klist" || \
-                    echo "警告：自定义 megahit 失败"
+                "$MEGAHIT" -1 "$clean1" -2 "$clean2" -o "$out_o" -t "$THREADS" \
+                    --k-list "$klist" || echo "警告：自定义 megahit 失败"
             fi
         fi
     done
