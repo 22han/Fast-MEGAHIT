@@ -1,0 +1,36 @@
+2026-09-29 19:44:13,987 | INFO     | 📁 检测到目录: mock_kmer
+2026-09-29 19:44:13,988 | INFO     | 📊 找到 61/61 个频谱文件 @ /home/zhangzihan/FAST_MEGAHIT/mock_kmer
+2026-09-29 19:44:13,988 | INFO     | 📁 输出目录已就绪: /home/zhangzihan/FAST_MEGAHIT/mock_k_custom
+2026-09-29 19:44:13,988 | INFO     | ⚙️  初始化 AdaptiveKmerSelector (k=21:141:2)
+2026-09-29 19:44:13,988 | INFO     | 🚀 开始执行流水线...
+2026-09-29 19:44:13,989 | INFO     | [Stage 1] 执行 EM 拟合...
+2026-09-29 19:44:13,989 | INFO     | Parallel EM fitting for 61 k-values (mode=BIMODAL)...
+2026-09-29 19:44:13,989 | INFO     | Total tasks: 61. K-range covered: from k=21 to k=141
+2026-09-29 19:44:14,504 | INFO     | ✅ EM fitting complete: 58/61 converged
+2026-09-29 19:44:14,505 | INFO     | [Stage 1.5] 构建自适应分区 (min_partitions=6, sensitivity=0.5)
+2026-09-29 19:44:14,523 | INFO     | Adaptive expansion: 6 -> 6 (threshold=1088652.76, sensitivity=0.5)
+2026-09-29 19:44:14,523 | INFO     | Constructed 6 adaptive partitions (top_down_adaptive, range=[6,12])
+2026-09-29 19:44:14,523 | INFO     | [Stage 2] 执行多目标选择...
+2026-09-29 19:44:14,595 | INFO     | Partition 0: candidates=[57, 59, 61]
+2026-09-29 19:44:14,595 | INFO     | Partition 1: candidates=[69, 71, 73]
+2026-09-29 19:44:14,595 | INFO     | Partition 2: candidates=[95, 79, 97]
+2026-09-29 19:44:14,595 | INFO     | Partition 3: candidates=[115, 117, 113]
+2026-09-29 19:44:14,595 | INFO     | Partition 4: candidates=[127, 129, 125]
+2026-09-29 19:44:14,595 | INFO     | Partition 5: candidates=[135]
+2026-09-29 19:44:14,595 | INFO     | After dedup: optimal_ks = [57, 69, 95, 115, 127, 135]
+2026-09-29 19:44:14,595 | INFO     | 🎯 Selected 6 optimal k-values: [57, 69, 95, 115, 127, 135]
+2026-09-29 19:44:14,595 | INFO     | 📊 Average CRITIC weights: {'node_retention': np.float64(0.2628824319565327), 'error_mass': np.float64(0.20611230874898415), 'species_resolution': np.float64(0.3035634445579053), 'cutoff_sharpness': np.float64(0.22744181473657782)}
+2026-09-29 19:44:15,407 | INFO     | 📊 Diagnostic plot saved to /home/zhangzihan/FAST_MEGAHIT/mock_k_custom/kmer_results_custom_diagnosis.png
+2026-09-29 19:44:15,407 | INFO     | 💾 保存结果...
+2026-09-29 19:44:15,407 | INFO     | 💾 Saving results with prefix: /home/zhangzihan/FAST_MEGAHIT/mock_k_custom/kmer_results_custom
+2026-09-29 19:44:15,408 | INFO     |    ✅ /home/zhangzihan/FAST_MEGAHIT/mock_k_custom/kmer_results_custom_selected_ks.txt
+2026-09-29 19:44:15,408 | INFO     |    ✅ /home/zhangzihan/FAST_MEGAHIT/mock_k_custom/kmer_results_custom_summary.json
+2026-09-29 19:44:15,417 | INFO     |    ✅ /home/zhangzihan/FAST_MEGAHIT/mock_k_custom/kmer_results_custom_metrics.csv (58 rows)
+2026-09-29 19:44:15,417 | INFO     | 💾 All results saved with prefix '/home/zhangzihan/FAST_MEGAHIT/mock_k_custom/kmer_results_custom'
+2026-09-29 19:44:15,417 | INFO     | ✅ 流水线执行成功！
+2026-09-29 19:44:15,417 | INFO     | 🎯 选中 k 值: [57, 69, 95, 115, 127, 135]
+2026-09-29 19:44:15,417 | INFO     | 📁 所有输出文件位于: /home/zhangzihan/FAST_MEGAHIT/mock_k_custom/
+2026-09-29 19:44:15,417 | INFO     |    ✓ kmer_results_custom_diagnosis.png (192.6 KB)
+2026-09-29 19:44:15,417 | INFO     |    ✓ kmer_results_custom_metrics.csv (17.9 KB)
+2026-09-29 19:44:15,417 | INFO     |    ✓ kmer_results_custom_selected_ks.txt (0.1 KB)
+2026-09-29 19:44:15,417 | INFO     |    ✓ kmer_results_custom_summary.json (2.5 KB)

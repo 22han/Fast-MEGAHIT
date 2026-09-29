@@ -1,0 +1,3 @@
+# Selected k-mer lengths (CRITIC-based multi-objective optimization)
+# Generated: 2026-09-29T19:44:15.408007
+K_LIST=[57, 69, 95, 115, 127, 135]

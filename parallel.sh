@@ -111,36 +111,36 @@ R2_RC_FILE="${DATA_DIR}/${base}clean_2_rc.fastq"
 #k_list=$(cat interval_results/interval_*_best.txt 2>/dev/null | tr '\n' ',' | sed 's/,$//')
 #
 ## -------------------- MEGAHIT 组装步骤 --------------------
-#echo "Step 2: Running MEGAHIT assembly..."
-#
-#if [ -z "$k_list" ]; then
-#    echo "Error: No k-values selected"; exit 1
-#fi
-#
-#BUILD_DIR="./build"
-#mkdir -p "$BUILD_DIR"
-#
-#
-#ABS_OUTPUT_DIR=$(realpath -m "$OUTPUT_DIR")
-#
-#cd "$BUILD_DIR" || exit 1
-#
-#if [ ! -x "./megahit" ]; then
-#    echo "Error: ./megahit not found in $(pwd)"; exit 1
-#fi
-#
-## 检查目标目录是否存在（MEGAHIT不允许输出目录已存在）
-#if [ -d "$ABS_OUTPUT_DIR" ]; then
-#    echo "Warning: $ABS_OUTPUT_DIR already exists. Deleting it for MEGAHIT..."
-#    rm -rf "$ABS_OUTPUT_DIR"
-#fi
-#
-#echo "Running: ./megahit -1 $R1_FILE -2 $R2_CLEAN --k-list $k_list -o $ABS_OUTPUT_DIR" 
-#./megahit -1 "$R1_FILE" -2 "$R2_CLEAN" --k-list "$k_list" -o "$ABS_OUTPUT_DIR" 
-#
-#cd - > /dev/null
-#
-## 计算时间并结束
-#END_TIME=$(date +%s)
-#TOTAL_DURATION=$((END_TIME - START_TIME))
-#echo "Pipeline completed. Results in: $OUTPUT_DIR"
+echo "Step 2: Running MEGAHIT assembly..."
+
+if [ -z "$k_list" ]; then
+   echo "Error: No k-values selected"; exit 1
+fi
+
+BUILD_DIR="./build"
+mkdir -p "$BUILD_DIR"
+
+
+ABS_OUTPUT_DIR=$(realpath -m "$OUTPUT_DIR")
+
+cd "$BUILD_DIR" || exit 1
+
+if [ ! -x "./megahit" ]; then
+   echo "Error: ./megahit not found in $(pwd)"; exit 1
+fi
+
+# 检查目标目录是否存在（MEGAHIT不允许输出目录已存在）
+if [ -d "$ABS_OUTPUT_DIR" ]; then
+   echo "Warning: $ABS_OUTPUT_DIR already exists. Deleting it for MEGAHIT..."
+   rm -rf "$ABS_OUTPUT_DIR"
+fi
+
+echo "Running: ./megahit -1 $R1_FILE -2 $R2_CLEAN --k-list $k_list -o $ABS_OUTPUT_DIR" 
+./megahit -1 "$R1_FILE" -2 "$R2_CLEAN"  -o "$ABS_OUTPUT_DIR" 
+
+cd - > /dev/null
+
+# 计算时间并结束
+END_TIME=$(date +%s)
+TOTAL_DURATION=$((END_TIME - START_TIME))
+echo "Pipeline completed. Results in: $OUTPUT_DIR"

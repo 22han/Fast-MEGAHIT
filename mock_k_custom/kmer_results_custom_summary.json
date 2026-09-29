@@ -1,0 +1,124 @@
+{
+  "metadata": {
+    "k_range": [
+      21,
+      141
+    ],
+    "step": 2,
+    "generated_at": "2026-09-29T19:44:15.408217",
+    "read_length": null
+  },
+  "partitioning": {
+    "n_partitions": 6,
+    "config": {
+      "method": "top_down_adaptive",
+      "min_partitions": 6,
+      "max_partitions": 12,
+      "min_size": 4,
+      "sensitivity": 0.5
+    },
+    "partitions_k": [
+      [
+        21,
+        67
+      ],
+      [
+        69,
+        77
+      ],
+      [
+        79,
+        105
+      ],
+      [
+        107,
+        123
+      ],
+      [
+        125,
+        133
+      ],
+      [
+        135,
+        141
+      ]
+    ]
+  },
+  "selection": {
+    "config": {
+      "method": "balanced",
+      "use_critic": true,
+      "manual_weights": null,
+      "objectives": [
+        "node_retention",
+        "error_mass",
+        "species_resolution",
+        "cutoff_sharpness"
+      ]
+    },
+    "critic_weights_history": [
+      {
+        "partition": 0,
+        "weights": {
+          "node_retention": 0.21636491402274685,
+          "error_mass": 0.175886593792806,
+          "species_resolution": 0.15483879661586286,
+          "cutoff_sharpness": 0.45290969556858424
+        },
+        "method": "CRITIC"
+      },
+      {
+        "partition": 1,
+        "weights": {
+          "node_retention": 0.3888428406752008,
+          "error_mass": 0.2960253856233513,
+          "species_resolution": 0.15334857585923056,
+          "cutoff_sharpness": 0.16178319784221734
+        },
+        "method": "CRITIC"
+      },
+      {
+        "partition": 2,
+        "weights": {
+          "node_retention": 0.2909751007551405,
+          "error_mass": 0.2665090535137616,
+          "species_resolution": 0.23907862235716382,
+          "cutoff_sharpness": 0.2034372233739341
+        },
+        "method": "CRITIC"
+      },
+      {
+        "partition": 3,
+        "weights": {
+          "node_retention": 0.17183887701388942,
+          "error_mass": 0.1517841642941484,
+          "species_resolution": 0.5000838894609266,
+          "cutoff_sharpness": 0.1762930692310356
+        },
+        "method": "CRITIC"
+      },
+      {
+        "partition": 4,
+        "weights": {
+          "node_retention": 0.24639042731568594,
+          "error_mass": 0.14035634652085358,
+          "species_resolution": 0.47046733849634265,
+          "cutoff_sharpness": 0.1427858876671178
+        },
+        "method": "CRITIC"
+      }
+    ],
+    "selected_ks": [
+      57,
+      69,
+      95,
+      115,
+      127,
+      135
+    ]
+  },
+  "convergence": {
+    "total_k_evaluated": 61,
+    "converged_count": 58
+  }
+}
